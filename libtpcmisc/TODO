@@ -1,0 +1,10 @@
+/**
+\page todo TODO
+\section todo TODO 
+<PRE>
+
+	- Test all the library functions and report.
+	- Add function strCopyClean() from dft2svg.c.
+
+</PRE>
+*/

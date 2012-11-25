@@ -1,0 +1,64 @@
+/**
+\mainpage libtpcimgp 2.0.6 (c) 2005-2012 by Turku PET Centre, University of Turku
+\section readme Readme
+<pre>
+
+libtpcimgp 2.0.6 (c) 2005-2012 by Turku PET Centre, University of Turku
+
+Build Nov 14 2012 08:10:58
+
+
+PET Image Processing library   
+-------------------------------------------------------------------------------
+
+Libtpcimgp is distributed under the GNU Lesser General Public Licence
+http://www.turkupetcentre.net/software/lgpl-license.html
+More information on open source licences: http://www.opensource.org
+
+Description
+-------------------------------------------------------------------------------
+
+The libtpcimgp library is a collection of commonly used C files
+at Turku PET Centre for image processing.
+
+List of files
+-------------------------------------------------------------------------------
+
+Doxyfile        - Doxygen configuration file.
+include/        - Includes all the header files for the .c files
+Makefile        - The makefile
+
+** .c files **
+imgarithm.c     - Functions for image arithmetics.
+imgfilter.c     - Functions for doing Gaussian filtering.
+imgflip.c       - Functions for turning image volume.
+imgframe.c      - Functions for setting IMG frame times.
+imgmatch.c      - Functions for comparing IMG contents.
+imgscanner.c    - Functions for setting scanner specific parameters.
+imgsegm.c       - Functions for segmenting images.
+imgthrs.c       - Functions for thresholding and outlier filtering.
+imgtiff.c       - Functions for writing TIFF images.
+imgtransform.c  - Functions for image transformations.
+libtpcimgp.c    - Functions for running tests on libtpcimgp.
+libtpcimgpv.c   - Functions for printing information on this library.
+point.c         - Functions for processing with points.
+
+Using the library
+-------------------------------------------------------------------------------
+
+The program that uses the library should include the .h file it needs.
+Example 1:
+    \#include <imgproc.h>  // includes all library functions
+Example 2:
+    \#include <imgtransform.h>   // includes functions for transforms 
+    \#include <point.h>  // includes the 3D point structure
+    \#include <libtpcimgpv.h>  // includes the information
+    \#include <imgfilter.h>  // includes functions for Gaussian filtering
+
+libtpcimgp depends on libtpcimgio and libtpcmisc.
+Example:
+  gcc myprog.c -ltpcimgp -ltpcimgio -ltpcmisc 
+
+
+</pre> 
+ */
