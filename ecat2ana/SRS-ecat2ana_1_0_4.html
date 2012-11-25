@@ -1,0 +1,539 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>SRS - ecat2ana</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+    <meta content="en-gb" http-equiv="content-language" />
+    <link type="image/x-icon" href="http://www.turkupetcentre.net/favicon.ico" rel="icon" />
+    <link type="image/x-icon" href="http://www.turkupetcentre.net/favicon.ico" rel="shortcut icon" />
+    <link href="http://www.turkupetcentre.net/srs.css" rel="stylesheet" />
+    <meta content="TURKU PET CENTRE, TPC, SRS, SOFTWARE REQUIREMENT SPECIFICATIONS"
+      name="keywords" />
+    <meta content="Software requirement specification for Turku PET Centre" name="description" />
+  </head>
+  <body>
+    <div id="document_change_history">
+      <h1><a name="mozTocId537698" class="mozTocH1"></a>Contents</h1>
+      <ul id="mozToc">
+        <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
+        <li><a href="#mozTocId537698">Contents</a></li>
+        <li><a href="#mozTocId221165">1 Document change
+            history</a></li>
+        <li><a href="#mozTocId490551">2 Introduction</a></li>
+        <li><a href="#mozTocId239123">3 Software
+            requirements</a>
+          <ul>
+            <li><a href="#mozTocId790077">3.1 Features</a>
+              <ul>
+                <li><a href="#mozTocId792517">3.1.1 Program can run
+                    silently</a></li>
+                <li><a href="#mozTocId698315">3.1.2 Analyze image can be saved
+                    in either little or big endian byte order</a></li>
+                <li><a href="#mozTocId202535">3.1.3 Path for Analyze files</a></li>
+                <li><a href="#mozTocId309621">3.1.4 Avoiding the flipping of
+                    plane order (z dimension)</a></li>
+                <li><a href="#mozTocId882215">3.1.5 Time frames are saved as
+                    separate Analyze images</a></li>
+                <li><a href="#mozTocId185140">3.1.6 SIF can be saved</a></li>
+              </ul>
+            </li>
+            <li><a href="#mozTocId966187">3.2 Operating
+                environment</a></li>
+            <li><a href="#mozTocId637823">3.3 Design and
+                implementation constraints</a></li>
+            <li><a href="#mozTocId748292">3.4 External
+                interface requirements</a>
+              <ul>
+                <li><a href="#mozTocId879480">3.4.1 User interfaces</a></li>
+                <li><a href="#mozTocId527846">3.4.2 Software
+                    interfaces</a></li>
+              </ul>
+            </li>
+            <li><a href="#mozTocId680463">3.5 User documentation</a></li>
+          </ul>
+        </li>
+        <li><a href="#mozTocId439565">4 Software
+            implementation</a></li>
+        <li><a href="#mozTocId923449">5 Software test plan</a>
+          <ul>
+            <li><a href="#mozTocId406530">5.1 Test cases</a></li>
+            <li><a href="#mozTocId542485">5.2 Properties that
+                are not tested</a></li>
+            <li><a href="#mozTocId989304">5.3 Completion
+                criteria for testing</a></li>
+          </ul>
+        </li>
+      </ul>
+      <br />
+      <h1><a name="mozTocId221165" class="mozTocH1"></a>1 Document change
+        history</h1>
+      <table border="1" style="background: white none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; color: black;">
+        <tbody>
+          <tr style="background: gray none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; color: black;">
+            <td> Revision </td>
+            <td> date </td>
+            <td> Author </td>
+            <td> Description </td>
+          </tr>
+          <tr>
+            <td> 1 </td>
+            <td> 2007-03-22 </td>
+            <td> Vesa Oikonen </td>
+            <td> First created. </td>
+          </tr>
+          <tr>
+            <td>2<br />
+            </td>
+            <td>2012-10-02<br />
+            </td>
+            <td>Vesa Oikonen<br />
+            </td>
+            <td>Additional option to save SIF. Typos corrected. Request for Unix
+              platform was removed.<br />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="main_text">
+      <a name="Introduction"></a>
+      <h1><a name="mozTocId490551" class="mozTocH1"></a>2 Introduction</h1>
+      <p>This is the combined SRS and test document for ecat2ana, version 1.0.4.
+      </p>
+      <p>This software writes the matrix data from ECAT 6.3 and
+        7 image file into Analyze 7.5 format, to be read in other
+        software, for instance SPM2 and Imadeus.<br />
+      </p>
+      <h1><a name="mozTocId239123" class="mozTocH1"></a>3 Software
+        requirements </h1>
+      <h2><a name="mozTocId790077" class="mozTocH2"></a>3.1 Features </h2>
+      <p>Software reads one or more datafile(s) in ECAT 6.3 or ECAT 7
+        image format. Image matrix is flipped in x,y,z-direction. Image
+        matrix may <span style="font-style: italic;">not</span> be flipped in z
+        dimension (planes), if required. Byte order can be switched,
+        if required. Analyze images (header file and matrix data file) are
+        written into specified directory, or if directory is not specified,
+        then in the working directory under directory ana_unix_files or
+        ana_pc_files, depending on the byte order of the Analyze images.</p>
+      Specific extensions to Analyze 7.5 format are:<br />
+      <ul>
+        <li>Scale factor to retain quantitation in <tt>image_dimension.funused1</tt></li>
+        <li>Isotope half-life (sec) in <tt>image_dimension.funused3</tt> (this
+          does not imply whether data is corrected for decay or not)</li>
+        <li>String in <tt>data_history.descrip</tt> tells whether data is
+          corrected for decay 'Decay corrected.' or 'No decay correction.'</li>
+      </ul>
+      <p></p>
+      <h3><a name="mozTocId792517" class="mozTocH3"></a>3.1.1 Program can run
+        silently</h3>
+      With option <code>--silent</code> the software does not print on
+      screen any other information or comments than error and warning
+      messages.<br />
+      <br />
+      <h3><a name="mozTocId698315" class="mozTocH3"></a>3.1.2 Analyze image can
+        be saved in either little or big endian byte order</h3>
+      By
+      default, Analyze 7.5 images are in big endian byte order (Sun Sparc,
+      Motorola, PowerPC). This byte order can be confirmed with option
+      -B[ig], in case that the default would be changed in a future release.<br />
+      <br />
+      With
+      option -L[ittle], Analyze 7.5 images are written in little endian byte
+      order (PC intel), mainly for Imadeus software.
+      <p><br />
+      </p>
+      <h3><a name="mozTocId202535" class="mozTocH3"></a>3.1.3 Path for Analyze
+        files</h3>
+      By
+      default, Analyze image (database files) are written in a directory
+      ana_unix_files under the current working directory, or ana_pc_files, in
+      case of littlen endian byte order.<br />
+      <br />
+      With option
+      -o=&lt;output path&gt; the path may be specified by the user.<br />
+      <br />
+      <h3><a name="mozTocId309621" class="mozTocH3"></a>3.1.4 Avoiding the
+        flipping of plane order (z dimension)</h3>
+      By
+      default, image is flipped in x,y,z-dimension. This default can be
+      changed by setting environment variable 'ANALYZE_FLIP' to 'N'.<br />
+      <br />
+      The
+      default, also when determined by the environment variable, can be
+      overridden during program execution with option -flip=&lt;y|n&gt;.<br />
+      <br />
+      <h3><a name="mozTocId882215" class="mozTocH3"></a>3.1.5 Time frames are
+        saved as separate Analyze images</h3>
+      With option -frames, a separate Analyze image file is written from each of
+      the ECAT image time frames.<br />
+      <br />
+      <h3><a id="mozTocId185140" class="mozTocH3"></a>3.1.6 SIF can be saved</h3>
+      With option -sif, a separate scan information file (containing PET frame
+      times) is saved.<br />
+      <h2><a name="mozTocId966187" class="mozTocH2"></a>3.2 Operating
+        environment </h2>
+      <p>Software will be used mainly in PC/Windows environment, but it may also
+        be used
+        in Linux.</p>
+      <h2><a name="mozTocId637823" class="mozTocH2"></a>3.3 Design and
+        implementation constraints </h2>
+      <p>Software uses C library functions.</p>
+      <p> To save computer memory, the data should be processed one frame at a
+        time.<br />
+      </p>
+      <h2><a name="mozTocId748292" class="mozTocH2"></a>3.4 External
+        interface requirements </h2>
+      <h3><a name="mozTocId879480" class="mozTocH3"></a>3.4.1 User interfaces
+      </h3>
+      <p>Software has a command line user interface. It may be used by other
+        software,
+        therefore it must get all required information from command line
+        arguments.<br />
+      </p>
+      <h3><a name="mozTocId527846" class="mozTocH3"></a>3.4.2 Software
+        interfaces </h3>
+      <p>Software reads image files in ECAT 6.3 and 7 format. Analyze
+        image can be converted back to ECAT format using program ana2ecat.</p>
+      <h2><a name="mozTocId680463" class="mozTocH2"></a>3.5 User documentation</h2>
+      <p>Software will print a short user information text with option -h or
+        --help, and exit.</p>
+      <p>Software will print build information text with option --build, and
+        exit.</p>
+      <br />
+      <h1><a name="mozTocId439565" class="mozTocH1"></a>4 Software
+        implementation </h1>
+      <p>Software will be programmed using ANSI C.
+        It will use the most recent C libraries for file i/o.
+      </p>
+      <br />
+      <h1><a name="mozTocId923449" class="mozTocH1"></a>5 Software test plan </h1>
+      <h2><a name="mozTocId406530" class="mozTocH2"></a>5.1 Test cases</h2>
+      <table border="1" style="background: white none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; color: black;">
+        <tbody>
+          <tr style="background: gray none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; color: black;">
+            <td>Test topic </td>
+            <td>Test case </td>
+            <td>ID </td>
+            <td>Expected result </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">Basics<br />
+            </td>
+            <td style="vertical-align: top;">No command line options or
+              arguments</td>
+            <td style="vertical-align: top;">1.1.1<br />
+            </td>
+            <td style="vertical-align: top;">User help text is printed on
+              screen. Program exits with error code.</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><br />
+            </td>
+            <td style="vertical-align: top;">Unknown option<br />
+            </td>
+            <td style="vertical-align: top;">1.1.2<br />
+            </td>
+            <td style="vertical-align: top;">Error<br />
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><br />
+            </td>
+            <td style="vertical-align: top;">An extra command-line argument
+              is given.<br />
+              NOT APPLICABLE, because all command-line arguments are interpreted
+              to be ECAT filenames.</td>
+            <td style="vertical-align: top;">1.1.3<br />
+            </td>
+            <td style="vertical-align: top;">Error<br />
+            </td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Option -h</td>
+            <td>1.2.1</td>
+            <td>User help text is printed on screen. Program exits.<br />
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><br />
+            </td>
+            <td style="vertical-align: top;">Option --help</td>
+            <td style="vertical-align: top;">1.2.2<br />
+            </td>
+            <td style="vertical-align: top;">Same as 1.2.1</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><br />
+            </td>
+            <td style="vertical-align: top;">Option --build</td>
+            <td style="vertical-align: top;">1.3.1<br />
+            </td>
+            <td style="vertical-align: top;">Program build information is
+              printed on screen. Program exists.</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><br />
+            </td>
+            <td style="vertical-align: top;">Option --silent</td>
+            <td style="vertical-align: top;">1.4.1<br />
+            </td>
+            <td style="vertical-align: top;">Program works silently; in test
+              mode silent mode is set on.<br />
+            </td>
+          </tr>
+          <tr>
+            <td>Option -L[ittle]<br />
+            </td>
+            <td>Without option<br />
+            </td>
+            <td>1.5.1</td>
+            <td>In test mode, byte order is set to big endian.</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;"><br />
+            </td>
+            <td style="vertical-align: top;">With option -L, -l, -little or
+              -Little<br />
+            </td>
+            <td style="vertical-align: top;">1.5.2<br />
+            </td>
+            <td style="vertical-align: top;">In test mode, byte order is set to
+              little endian</td>
+          </tr>
+          <tr>
+            <td style="vertical-align: top;">Option -B[ig]<br />
+            </td>
+            <td style="vertical-align: top;">Without option<br />
+            </td>
+            <td style="vertical-align: top;">1.6.1<br />
+            </td>
+            <td style="vertical-align: top;">Same as 1.5.1</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>With option -B, -b, -Big or -big</td>
+            <td>1.6.2</td>
+            <td>In test mode, byte order is set to big endian.</td>
+          </tr>
+          <tr>
+            <td>Output path</td>
+            <td>Without option -o</td>
+            <td>1.7.1</td>
+            <td>In test mode, output path is set to ana_unix_files or
+              ana_pc_files, based on byte order</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>With option -o=&lt;path&gt;</td>
+            <td>1.7.2</td>
+            <td>In test mode, output path is set to specified path</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>With option -o=</td>
+            <td>1.7.3</td>
+            <td>Write Analyze image in current directory</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Input and output path is the same, and input ECAT file would be
+              overwritten</td>
+            <td>1.7.4</td>
+            <td>Error message, but process will be continued from next file</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Output file and path exists</td>
+            <td>1.7.5</td>
+            <td>Overwritten</td>
+          </tr>
+          <tr>
+            <td>Image flipping in z dimension</td>
+            <td>No option or environment variable</td>
+            <td>1.8.1</td>
+            <td>In test mode, set to be flipped in z dimension</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Environment variable ANALYZE_FLIP = y</td>
+            <td>1.8.2</td>
+            <td>In test mode, set to be flipped in z dimension</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Environment variable ANALYZE_FLIP = n</td>
+            <td>1.8.3</td>
+            <td>In test mode, set to not be flipped in z dimension</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Option -flip=y, independent of environment variable</td>
+            <td>1.8.4</td>
+            <td>In test mode, set to be flipped in z dimension</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Option -flip=n, independent of environment variable</td>
+            <td>1.8.5</td>
+            <td>In test mode, set to not be flipped in z dimension</td>
+          </tr>
+          <tr>
+            <td>Option -frames</td>
+            <td>Without option</td>
+            <td>1.9.1</td>
+            <td>In test mode, set to write only one Analyze image</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>With option</td>
+            <td>1.9.2</td>
+            <td>In test mode, set to write one Analyze image per frame. One
+              Analyze database is written per frame.</td>
+          </tr>
+          <tr>
+            <td>Input image </td>
+            <td>Input file name not given </td>
+            <td> 2.1.1 </td>
+            <td> Error </td>
+          </tr>
+          <tr>
+            <td>   </td>
+            <td> Input file does not exist </td>
+            <td> 2.2.1 </td>
+            <td> Error </td>
+          </tr>
+          <tr>
+            <td>   </td>
+            <td> Input file format: not ECAT image format </td>
+            <td> 2.3.1 </td>
+            <td> Error </td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Input file format: ECAT 7 image volume</td>
+            <td>2.3.2</td>
+            <td>Correctly processed</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Input file format: ECAT 7 2D image</td>
+            <td>2.3.3</td>
+            <td>Correctly processed</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Input file format: ECAT 6.3 image</td>
+            <td>2.3.4</td>
+            <td>Correctly processed</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>ECAT file contains discontinuous frame or plane numbers</td>
+            <td>2.4.1</td>
+            <td>Correctly processed, although number are changed to continuous</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>More than one ECAT files, which all are ok, given as separate
+              command-line arguments</td>
+            <td>2.5.1</td>
+            <td>All correctly processed</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>More than one ECAT files, which all are ok, given with wildcards</td>
+            <td>2.5.2</td>
+            <td>All correctly processed</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>More than one ECAT files, where one is not ok.</td>
+            <td>2.5.3</td>
+            <td>Error message, and returns error code, but other files are
+              processed correctly</td>
+          </tr>
+          <tr>
+            <td>Validity of results</td>
+            <td>Image flipping is done correctly</td>
+            <td>3.1.1</td>
+            <td>Analyze images are always flipped in x,y-direction, and in z
+              direction, when required</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Byte order is set correctly</td>
+            <td>3.2.1</td>
+            <td>Changing byte order with command-line option leads to the same
+              result as using anabyteo</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Quantitation is preserved after conversion from ECAT 6.3 and
+              back to ECAT 6.3 with ana2ecat</td>
+            <td>3.3.1</td>
+            <td>Image pixel values are close to the original</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Quantitation is preserved after conversion from ECAT 7 and back
+              to ECAT 7 with ana2ecat</td>
+            <td>3.3.2</td>
+            <td>Image pixel values are close to the original</td>
+          </tr>
+          <tr>
+            <td><br />
+            </td>
+            <td>Compatibility with Analyze images produced with older ecat2ana
+              0.6.3 version, which has been used a lot</td>
+            <td>3.4.1</td>
+            <td>Analyze header contents are essentially the same. Quantitation
+              is preserved.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="validate">
+      <p><br />
+      </p>
+      <h2><a name="mozTocId542485" class="mozTocH2"></a>5.2 Properties that
+        are not tested</h2>
+      Validity of Analyze files for separate frames is not tested.<br />
+      Option -SIF is not tested separately, but it is used in other tests where
+      successful back-conversion requires that correct SIF was created.<br />
+      <br />
+      <h2><a name="mozTocId989304" class="mozTocH2"></a>5.3 Completion
+        criteria for testing<br />
+      </h2>
+      <p>Test set consists of "hand-made" or simulated data, which provide a
+        clear
+        failed/passed result. This test will be automated with a Windows batch
+        file or WSH or Unix/Linux shell script,
+        which will print "failed" if any of the test cases is failed or "all
+        passed"
+        if all tests are passed. Software will be installed only after it
+        passes all tests and testing phase is thus completed.</p>
+    </div>
+  </body>
+</html>
